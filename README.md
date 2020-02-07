@@ -1,8 +1,8 @@
-#jjtransfer - RESTful API for money transfer
+# jjtransfer - RESTful API for money transfer
 
 API can be invoked by multiple service and systems on behalf of end users.
  
-##Design
+## Design
 Implemented use cases
 ![Use cases](jjtransfer/design/usecases.png)
 
