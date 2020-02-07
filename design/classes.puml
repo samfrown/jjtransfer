@@ -1,0 +1,96 @@
+@startuml
+
+package API {
+
+package requests {
+class AddAccountRequest {
+    accountId: String
+}
+
+class TransferRequest {
+    recipient: String
+    amount: String
+}
+}
+
+package responses {
+class AccountRm {
+    accountId: String
+    amount: String
+}
+
+class TransferRm {
+    sender: String
+    recipient: String
+    amount: String
+}
+}
+
+class AccountsResource {
+    createAccount()
+    createTransferFromAccount(accountId)
+    updateTransferFromAccount(accountId)
+    commitTransferFromAccount(accountId)
+}
+
+class TransfersResource {
+    getTransfers()
+}
+}
+
+package Services {
+class AccountService {
+    -accountDao: AccountDAO
+
+    createAccount(userName): long
+    get(accountId): Account
+    add(accountId, deposit): Account
+}
+
+class TransferService {
+    - transferDao: TransferDAO
+    getTransfers()
+    commitTransfer()
+}
+
+package domain.model {
+enum TransferState {
+    NEW
+    PROCESSING
+    SUCCEED
+    FAILED
+}
+
+class Transfer {
+    sender: String
+    recipient: String
+    amount: MonetaryAmount
+    status: TransferStatus
+}
+
+class Account {
+    accountId: String
+    amount: MonetaryAmount
+}
+}
+
+
+package DAO {
+class AccountDAO {
+    accounts: Map<String, Account>
+}
+
+class TransferDAO {
+    transfers: Map<Long, Transfer>
+}
+}
+}
+
+AccountService *-- AccountDAO
+TransferService *-- TransferDAO
+
+AccountsResource *-- AccountService
+AccountsResource *-- TransferService
+TransfersResource *-- TransferService
+
+@enduml
