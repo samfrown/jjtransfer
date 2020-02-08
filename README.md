@@ -33,15 +33,15 @@ Client - (post transfer) - ACC update (lock)  - TRDB - TransferCommand - TRS (qu
 (queue) - TransferCommand - TRS - ACC update (lock) 
 
 
-##Running
+## Running
 Start server by:
 
     java -jar app.jar
 
-##Build 
+## Build 
     
     mvn clean package
 
-##Tests
+## Tests
     
     man clean test
