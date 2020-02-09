@@ -46,7 +46,7 @@ public class AccountResourceTest extends JerseyTest {
         ResourceConfig resourceConfig = new ResourceConfig();
         accountServiceMock = mock(AccountService.class);
         transferServiceMock = mock(TransferService.class);
-        resourceConfig.register(new AccountResource(accountServiceMock, transferServiceMock));
+        resourceConfig.register(new AccountsResource(accountServiceMock, transferServiceMock));
         resourceConfig.property(LoggingFeature.LOGGING_FEATURE_LOGGER_LEVEL_SERVER, "INFO");
         return resourceConfig;
     }

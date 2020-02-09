@@ -23,27 +23,23 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.github.samfrown.moneytransfer.domain.Account.DEFAULT_CURRENCY;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 @Path("accounts")
 @Singleton
-public class AccountResource {
+public class AccountsResource {
     private final AccountService accountService;
     private final TransferService transferService;
 
-    public AccountResource(AccountService accountService, TransferService transferService) {
+    public AccountsResource(AccountService accountService, TransferService transferService) {
         this.accountService = accountService;
         this.transferService = transferService;
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getAccounts() {
-        return "[]";
     }
 
     @POST
@@ -69,7 +65,7 @@ public class AccountResource {
     public TransferRm createTransferFromAccount(@PathParam("accountId") String accountId,
                                                 @Valid TransferFromAccountRequest transferRequest) {
         Account account = findAccount(accountId);
-        Transfer transfer = transferService.createTransfer(accountId, transferRequest);
+        Transfer transfer = transferService.create(accountId, transferRequest);
         account.getPreparedTransfers().put(transfer.getTransferId(), transfer);
         return TransferRm.from(transfer);
     }
@@ -84,11 +80,38 @@ public class AccountResource {
         Account account = findAccount(accountId);
         UUID transferUuid = UUID.fromString(transferId);
         if (!account.getPreparedTransfers().containsKey(transferUuid)) {
-            throw new NotFoundException(format("Transfer '%s' from account '%s' is not found", accountId));
+            throw new NotFoundException(format("Transfer '%s' from account '%s' is not found", transferId, accountId));
         }
-        Transfer transfer = transferService.prepareTransfer(transferUuid, accountId, transferRequest);
+        Transfer transfer = transferService.prepare(transferUuid, accountId, transferRequest);
         account.getPreparedTransfers().put(transfer.getTransferId(), transfer);
         return TransferRm.from(transfer);
+    }
+
+    @POST
+    @Path("{accountId}/transfers/{transferId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public TransferRm commitTransferFromAccount(@PathParam("accountId") String accountId,
+                                                @PathParam("transferId") String transferId) {
+        Account account = findAccount(accountId);
+        UUID transferUuid = UUID.fromString(transferId);
+        Transfer transfer = account.getPreparedTransfers().get(transferUuid);
+        if (transfer == null) {
+            throw new NotFoundException(format("Transfer '%s' from account '%s' is not found", transferId, accountId));
+        }
+        account.take(transfer.getTransferAmount());
+        Transfer processingTransfer = transferService.commit(transfer);
+        account.getPreparedTransfers().remove(transferUuid);
+        return TransferRm.from(processingTransfer);
+    }
+
+    @GET
+    @Path("{accountId}/transfers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<TransferRm> getPreparedTransfers(@PathParam("accountId") String accountId) {
+        Account account = findAccount(accountId);
+        return account.getPreparedTransfers().values().stream()
+                .map(TransferRm::from)
+                .collect(toList());
     }
 
     @POST

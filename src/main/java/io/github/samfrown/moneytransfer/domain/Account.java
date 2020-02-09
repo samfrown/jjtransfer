@@ -35,15 +35,15 @@ public class Account {
         return balance.getAmount();
     }
 
-    public boolean take(@NonNull MonetaryAmount amount) {
-        if (amount.isGreaterThan(amount)) {
+    synchronized public boolean take(@NonNull MonetaryAmount amount) {
+        if (balance.getAmount().isGreaterThanOrEqualTo(amount)) {
             balance.subtract(amount);
             return true;
         }
         return false;
     }
 
-    public boolean place(@NonNull MonetaryAmount amount) {
+    synchronized public boolean place(@NonNull MonetaryAmount amount) {
         if (amount.isPositive()) {
             balance.add(amount);
             return true;
@@ -54,19 +54,19 @@ public class Account {
     private static class AccountBalance {
         private MonetaryAmount balanceAmount;
 
-        public AccountBalance() {
+        AccountBalance() {
             balanceAmount = FastMoney.of(0, DEFAULT_CURRENCY);
         }
 
-        public MonetaryAmount getAmount() {
+        MonetaryAmount getAmount() {
             return balanceAmount;
         }
 
-        public void subtract(MonetaryAmount amount) {
+        void subtract(MonetaryAmount amount) {
             balanceAmount = balanceAmount.subtract(amount);
         }
 
-        public void add(MonetaryAmount amount) {
+        void add(MonetaryAmount amount) {
             balanceAmount = balanceAmount.add(amount);
         }
     }

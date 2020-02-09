@@ -5,11 +5,10 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.money.MonetaryAmount;
-import javax.validation.constraints.NotBlank;
 import java.util.UUID;
 
 @Value
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Builder", toBuilder = true)
 public class Transfer {
     @NonNull
     private final UUID transferId;
@@ -22,9 +21,14 @@ public class Transfer {
     @NonNull
     private Transfer.State state;
 
+    public boolean canBeProcessed() {
+        return state == State.PROCESSING || state == State.REJECTING;
+    }
+
     public enum State {
         NEW,
         PROCESSING,
+        REJECTING,
         COMPLETED,
         REJECTED
     }
