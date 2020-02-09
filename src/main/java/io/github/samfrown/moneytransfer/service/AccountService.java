@@ -2,11 +2,16 @@ package io.github.samfrown.moneytransfer.service;
 
 import io.github.samfrown.moneytransfer.dao.AccountsDao;
 import io.github.samfrown.moneytransfer.domain.Account;
+import io.github.samfrown.moneytransfer.domain.Transfer;
+import io.github.samfrown.moneytransfer.rest.request.TransferFromAccountRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.NotFoundException;
 
+import java.util.UUID;
+
+import static io.github.samfrown.moneytransfer.domain.Transfer.State.NEW;
 import static java.lang.String.format;
 
 public class AccountService {
@@ -28,4 +33,6 @@ public class AccountService {
         LOG.info("Account created: {}", account);
         return accountsDao.selectAccount(accountId);
     }
+
+
 }

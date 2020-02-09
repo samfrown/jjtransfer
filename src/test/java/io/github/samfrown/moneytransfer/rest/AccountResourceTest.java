@@ -2,20 +2,17 @@ package io.github.samfrown.moneytransfer.rest;
 
 import io.github.samfrown.moneytransfer.domain.Account;
 import io.github.samfrown.moneytransfer.rest.request.AddAccountRequest;
+import io.github.samfrown.moneytransfer.rest.request.DepositRequest;
 import io.github.samfrown.moneytransfer.rest.response.AccountRm;
 import io.github.samfrown.moneytransfer.service.AccountService;
-import org.glassfish.jersey.jackson.JacksonFeature;
+import io.github.samfrown.moneytransfer.service.TransferService;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.jetty.JettyTestContainerFactory;
-import org.glassfish.jersey.test.spi.TestContainerException;
-import org.glassfish.jersey.test.spi.TestContainerFactory;
+import org.glassfish.jersey.test.TestProperties;
 import org.javamoney.moneta.FastMoney;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -23,6 +20,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static io.github.samfrown.moneytransfer.domain.Account.DEFAULT_CURRENCY;
 import static io.github.samfrown.moneytransfer.rest.response.AccountRm.from;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -39,27 +37,25 @@ public class AccountResourceTest extends JerseyTest {
     private final Account filledAccount = new Account(FILLED_ACCOUNT_ID);
 
     private AccountService accountServiceMock;
+    private TransferService transferServiceMock;
 
     @Override
     protected Application configure() {
+        enable(TestProperties.LOG_TRAFFIC);
+        enable(TestProperties.DUMP_ENTITY);
         ResourceConfig resourceConfig = new ResourceConfig();
         accountServiceMock = mock(AccountService.class);
-        resourceConfig.register(new AccountResource(accountServiceMock));
-        resourceConfig.register(JacksonFeature.class);
-        //resourceConfig.register(JacksonJsonProvider.class);
+        transferServiceMock = mock(TransferService.class);
+        resourceConfig.register(new AccountsResource(accountServiceMock, transferServiceMock));
+        resourceConfig.property(LoggingFeature.LOGGING_FEATURE_LOGGER_LEVEL_SERVER, "INFO");
         return resourceConfig;
-    }
-
-    @Override
-    protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
-        return new JettyTestContainerFactory();
     }
 
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        filledAccount.place(FastMoney.of(13.71, "USD"));
+        filledAccount.place(FastMoney.of(13.71, DEFAULT_CURRENCY));
         when(accountServiceMock.find(NEW_ACCOUNT_ID)).thenReturn(newAccount);
         when(accountServiceMock.find(FILLED_ACCOUNT_ID)).thenReturn(filledAccount);
         when(accountServiceMock.create(NEW_ACCOUNT_ID)).thenReturn(newAccount);
@@ -76,7 +72,7 @@ public class AccountResourceTest extends JerseyTest {
         assertEquals("Http Content-Type should be: ", MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
 
         String accountsJson = response.readEntity(String.class);
-        assertEquals("Response accounts is: ",  "[]", accountsJson);
+        assertEquals("Response accounts is: ", "[]", accountsJson);
     }
 
     @Test
@@ -84,6 +80,7 @@ public class AccountResourceTest extends JerseyTest {
         //when
         Response response = target(BASE_PATH + "/" + UNKNOWN_ACCOUNT_ID).request()
                 .get();
+        response.readEntity(String.class);
         //then
         assertEquals("Http Response should be 404: ", Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
@@ -114,4 +111,23 @@ public class AccountResourceTest extends JerseyTest {
         AccountRm actualAccount = response.readEntity(AccountRm.class);
         assertEquals("Account is new: ", from(newAccount), actualAccount);
     }
+
+    @Test
+    public void depositToNewAccount() {
+        //given
+        DepositRequest request = new DepositRequest();
+        request.setAmount(1.01);
+        //when
+        Response response = target(BASE_PATH + "/" + NEW_ACCOUNT_ID + "/deposit")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
+
+        //then
+        assertEquals("Http Response should be 200: ", Response.Status.OK.getStatusCode(), response.getStatus());
+
+        AccountRm actualAccount = response.readEntity(AccountRm.class);
+        assertEquals("Account is new: ", NEW_ACCOUNT_ID, actualAccount.getAccountId());
+        assertEquals("Balance is: ", "USD 1.01000", actualAccount.getBalance());
+    }
+
 }

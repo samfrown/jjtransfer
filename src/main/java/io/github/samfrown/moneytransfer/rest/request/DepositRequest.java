@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddAccountRequest {
+public class DepositRequest {
     @NotBlank
-    String accountId;
+    Number amount;
 }

@@ -4,12 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddAccountRequest {
+public class TransferFromAccountRequest {
     @NotBlank
-    String accountId;
+    private String toAccountId;
+    @DecimalMin(value = "0.01")
+    private Number transferAmount;
 }
+
