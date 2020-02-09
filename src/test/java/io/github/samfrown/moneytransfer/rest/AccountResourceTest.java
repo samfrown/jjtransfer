@@ -63,19 +63,6 @@ public class AccountResourceTest extends JerseyTest {
     }
 
     @Test
-    public void getAccounts_whenAccountsEmpty() {
-        //when
-        Response response = target(BASE_PATH).request()
-                .get();
-        //then
-        assertEquals("Http Response should be 200: ", Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals("Http Content-Type should be: ", MediaType.APPLICATION_JSON, response.getHeaderString(HttpHeaders.CONTENT_TYPE));
-
-        String accountsJson = response.readEntity(String.class);
-        assertEquals("Response accounts is: ", "[]", accountsJson);
-    }
-
-    @Test
     public void getAccount_whenUnknownId() {
         //when
         Response response = target(BASE_PATH + "/" + UNKNOWN_ACCOUNT_ID).request()
