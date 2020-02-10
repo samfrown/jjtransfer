@@ -2,10 +2,9 @@
 left to right direction
 Client --> (Create account)
 Cashier --> (Deposit to account)
-Client --> (Check account)
+Client --> (Get account info)
 Client --> (Transfer to another account)
 (Transfer to another account) ..> (Create transfer): includes
 (Transfer to another account) ..> (Edit transfer): includes
 (Transfer to another account) ..> (Send transfer): includes
-(Transfer to another account) ..> (Check transfer): includes
 @enduml

@@ -7,13 +7,14 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TransfersDao {
 
     private final Map<UUID, Transfer> transfers;
 
     public TransfersDao() {
-        transfers = new TreeMap<>();
+        transfers = new ConcurrentHashMap<>();
     }
 
     public Transfer selectTransfer(UUID transferId) {
