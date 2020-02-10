@@ -11,5 +11,5 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class DepositRequest {
     @NotBlank
-    Number amount;
+    Number depositAmount;
 }

@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class TransferFromAccountRequest {
     @NotBlank
-    private String toAccountId;
+    private String destinationAccountId;
     @DecimalMin(value = "0.01")
     private Number transferAmount;
 }

@@ -103,7 +103,7 @@ public class AccountResourceTest extends JerseyTest {
     public void depositToNewAccount() {
         //given
         DepositRequest request = new DepositRequest();
-        request.setAmount(1.01);
+        request.setDepositAmount(1.01);
         //when
         Response response = target(BASE_PATH + "/" + NEW_ACCOUNT_ID + "/deposit")
                 .request(MediaType.APPLICATION_JSON_TYPE)

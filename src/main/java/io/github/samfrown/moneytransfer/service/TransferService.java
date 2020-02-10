@@ -36,7 +36,7 @@ public class TransferService {
         Transfer transfer = Transfer.builder()
                 .transferId(transferId)
                 .sourceAccountId(accountId)
-                .destinationAccountId(transferRequest.getToAccountId())
+                .destinationAccountId(transferRequest.getDestinationAccountId())
                 .transferAmount(FastMoney.of(transferRequest.getTransferAmount(), DEFAULT_CURRENCY))
                 .state(NEW)
                 .build();

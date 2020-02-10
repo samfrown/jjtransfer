@@ -25,7 +25,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static io.github.samfrown.moneytransfer.domain.Account.DEFAULT_CURRENCY;
 import static java.lang.String.format;
@@ -121,7 +120,7 @@ public class AccountsResource {
     public AccountRm deposit(@PathParam("accountId") String accountId,
                              @Valid DepositRequest depositRequest) {
         Account account = findAccount(accountId);
-        MonetaryAmount amount = FastMoney.of(depositRequest.getAmount(), DEFAULT_CURRENCY);
+        MonetaryAmount amount = FastMoney.of(depositRequest.getDepositAmount(), DEFAULT_CURRENCY);
         account.place(amount);
         return AccountRm.from(account);
     }

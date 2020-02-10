@@ -7,90 +7,101 @@ class AddAccountRequest {
     accountId: String
 }
 
-class TransferRequest {
-    recipient: String
-    amount: String
+class TransferFromAccountRequest {
+    destinationAccountId: String
+    transferAmount: Number
+}
+
+class DepositRequest {
+    depositAmount: Number
 }
 }
 
 package responses {
 class AccountRm {
     accountId: String
-    amount: String
+    balance: String
 }
 
 class TransferRm {
-    sender: String
-    recipient: String
-    amount: String
+    transferId: String
+    sourceAccountId: String
+    destinationAccountId: String
+    transferAmount: Number
+    state: String
 }
 }
 
 class AccountsResource {
-    createAccount()
-    createTransferFromAccount(accountId)
-    updateTransferFromAccount(accountId)
-    commitTransferFromAccount(accountId)
 }
 
 class TransfersResource {
-    getTransfers()
 }
 }
 
-package Services {
+package Service {
 class AccountService {
-    -accountDao: AccountDAO
-
-    createAccount(userName): long
-    get(accountId): Account
-    add(accountId, deposit): Account
+    create(accountId): Account
+    find(accountId): Account
 }
 
 class TransferService {
-    - transferDao: TransferDAO
-    getTransfers()
-    commitTransfer()
+    create()
+    prepare()
+    find()
+    commit()
+    complete()
+    reject()
 }
 
 package domain.model {
 enum TransferState {
     NEW
     PROCESSING
-    SUCCEED
-    FAILED
+    REJECTING
+    COMPLETED
+    REJECTED
 }
 
 class Transfer {
-    sender: String
-    recipient: String
-    amount: MonetaryAmount
-    status: TransferStatus
+    transferId: UUID
+    sourceAccountId: String
+    destinationAccountId: String
+    transferAmount: MonetaryAmount
+    state: TransferState
 }
 
 class Account {
-    accountId: String
-    amount: MonetaryAmount
+    - accountId: String
+    - balance: AccountBalance
+    - preparedTransfers: Map
+    take(MonetaryAmount)
+    place(MonetaryAmount)
 }
 }
 
 
 package DAO {
-class AccountDAO {
-    accounts: Map<String, Account>
+class AccountsDAO {
+    accounts: Map
 }
 
-class TransferDAO {
-    transfers: Map<Long, Transfer>
+class TransfersDAO {
+    transfers: Map
+}
+}
+
+package processing {
+class TransferProcessing {
 }
 }
 }
 
-AccountService *-- AccountDAO
-TransferService *-- TransferDAO
+AccountService *-u- AccountsDAO
+TransferService *-u- TransfersDAO
 
-AccountsResource *-- AccountService
-AccountsResource *-- TransferService
-TransfersResource *-- TransferService
-
+AccountsResource *-u- AccountService
+AccountsResource *-u- TransferService
+TransfersResource *-u- TransferService
+TransferProcessing ..> TransferService
 @enduml

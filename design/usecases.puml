@@ -1,10 +1,11 @@
 @startuml
-left to right direction
-Client --> (Create account)
+User --> (Create account)
 Cashier --> (Deposit to account)
-Client --> (Get account info)
-Client --> (Transfer to another account)
-(Transfer to another account) ..> (Create transfer): includes
-(Transfer to another account) ..> (Edit transfer): includes
-(Transfer to another account) ..> (Send transfer): includes
+User --> (Check balance)
+User --> (Transfer money)
+(Transfer money) ..> (Create transfer): includes
+(Transfer money) ..> (Edit transfer): includes
+(Transfer money) ..> (Commit transfer): includes
+System --> (Complete transfer)
+(Complete transfer) <|.. (Return transfer)
 @enduml
