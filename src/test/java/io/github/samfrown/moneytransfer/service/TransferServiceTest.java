@@ -117,9 +117,7 @@ public class TransferServiceTest {
     @Test
     public void shouldFindNoneIfTransferNotExists() {
         //given
-        Transfer transferInDb = transferBuilder.build();
         UUID unknownTransferId = UUID.randomUUID();
-        when(transfersDaoMock.selectTransfer(eq(transferInDb.getTransferId()))).thenReturn(transferInDb);
         //then
         assertThat(transferService.find(unknownTransferId), nullValue());
     }
