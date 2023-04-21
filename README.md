@@ -2,7 +2,6 @@
 
 API can be invoked by multiple service and systems on behalf of end users.
  
- [![Build Status](https://travis-ci.org/samfrown/jjtransfer.svg?branch=master)](https://travis-ci.org/samfrown/jjtransfer)
 ## Design
 Implemented use cases
 ![Use cases](design/usecases.png)
